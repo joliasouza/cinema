@@ -346,15 +346,11 @@ export function VendaIngressos() {
                       {salaSelecionada ? 'Selecione um assento' : 'Antes, selecione uma sessão'}
                     </option>
 
-                    {salaSelecionada && [
-                      // Incluir assento sendo editado primeiro se existir
-                      ...(editando && assentoSelecionado ? [assentoSelecionado] : []),
-                      // Depois incluir assentos disponíveis (excluindo o que está sendo editado para não duplicar)
-                      ...assentosDisponiveis
-                        .filter(a => !assentosOcupados.includes(a) && a !== assentoSelecionado)
-                    ].map(assento => (
+                    {salaSelecionada && assentosDisponiveis
+                        .filter(a => !assentosOcupados.includes(a))
+                        .map(assento => (
                         <option key={assento} value={assento}>
-                            {assento} {editando && assento === assentoSelecionado ? '(atual)' : ''}
+                            {assento}
                         </option>
                         ))
                     }
