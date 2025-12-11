@@ -25,7 +25,7 @@ export function CadastroSessoes() {
 
   const salaIdWatch = watch('salaId');
   const salaSelected = salas.find(s => s.id === (salaIdWatch || salaId));
-  const formatoDisponivel = salaSelected?.tipo === 'IMAX' ? '2D / 3D' : (salaSelected?.tipo || '');
+  const formatoDisponivel = salaSelected?.tipo || '';
 
   const onSubmit = async (data: SessaoFormData) => {
     try {
@@ -37,8 +37,12 @@ export function CadastroSessoes() {
         return;
       }
 
-      const formato = sala.tipo === 'IMAX' ? '2D' : sala.tipo;
-      const sessaoData = { ...data, formato };
+      const formato = sala.tipo as '2D' | '3D' | 'IMAX';
+      const sessaoData = { 
+        ...data, 
+        formato,
+        preco: Number(data.preco)
+      };
 
       if (editando) {
         await updateSessao(editando.id, sessaoData);
@@ -51,7 +55,8 @@ export function CadastroSessoes() {
       reset();
       setSalaId('');
     } catch (error: any) {
-      const errorMessage = error?.message || 'Erro ao salvar sessão.';
+      console.error('Erro ao salvar sessão:', error);
+      const errorMessage = error?.message || 'Erro ao salvar sessão. Verifique se a API está rodando (npm run api).';
       setStatus({ type: 'err', message: errorMessage });
     }
   };
@@ -117,8 +122,18 @@ export function CadastroSessoes() {
               {...register('salaId')}
               className={`form-select ${errors.salaId ? 'is-invalid' : ''}`}
               onChange={(e) => {
-                setSalaId(e.target.value);
-                setValue('salaId', e.target.value);
+                const salaIdValue = e.target.value;
+                setSalaId(salaIdValue);
+                setValue('salaId', salaIdValue);
+                
+                // Atualizar formato quando sala for selecionada
+                if (salaIdValue) {
+                  const sala = salas.find(s => s.id === salaIdValue);
+                  if (sala) {
+                    const formato = sala.tipo as '2D' | '3D' | 'IMAX';
+                    setValue('formato', formato);
+                  }
+                }
               }}
             >
               <option value="">Selecione</option>
@@ -182,6 +197,10 @@ export function CadastroSessoes() {
           <div>
             <label htmlFor="formato" className="form-label">Formato</label>
             <input 
+              type="hidden"
+              {...register('formato')}
+            />
+            <input 
               id="formato" 
               type="text"
               className="form-control" 
@@ -192,6 +211,9 @@ export function CadastroSessoes() {
               <div className="form-text">
                 <i className="bi bi-info-circle"></i> Formato definido automaticamente pela sala selecionada
               </div>
+            )}
+            {errors.formato && (
+              <div className="text-danger small mt-1">{errors.formato.message}</div>
             )}
           </div>
         </div>

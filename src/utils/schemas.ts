@@ -27,7 +27,7 @@ export const sessaoSchema = z.object({
     }, { message: 'A data da sessão não pode ser anterior à data atual' }),
   preco: z.coerce.number().min(0, 'Preço não pode ser negativo').max(500, 'Preço inválido'),
   idioma: z.enum(['Dublado', 'Legendado'], { message: 'Idioma inválido' }),
-  formato: z.enum(['2D', '3D'], { message: 'Formato inválido' }),
+  formato: z.enum(['2D', '3D', 'IMAX'], { message: 'Formato inválido' }),
 });
 
 export const ingressoSchema = z.object({

@@ -165,16 +165,26 @@ export function CadastroFilmes() {
               type="date" 
               {...register('estreia')} 
               className={`form-control ${errors.estreia ? 'is-invalid' : ''}`}
+              min="1900-01-01"
+              max="2099-12-31"
               onKeyDown={(e) => {
                 const input = e.target as HTMLInputElement;
-                const parts = input.value.split('-');
-                if (parts[0] && parts[0].length >= 4 && e.key >= '0' && e.key <= '9' && !e.ctrlKey && !e.metaKey) {
-                  const selection = window.getSelection();
-                  if (!selection || selection.toString().length === 0) {
-                    const cursorPos = input.selectionStart || 0;
-                    if (cursorPos <= 4) {
-                      e.preventDefault();
-                    }
+                const value = input.value;
+                
+                // Se a tecla for um número
+                if (e.key >= '0' && e.key <= '9' && value && value.length >= 10) {
+                  const cursorPos = input.selectionStart || 0;
+                  const yearPart = value.substring(0, 4);
+                  
+                  // Verifica se o ano está completo (sem zeros de preenchimento automático)
+                  // Um ano válido não deve começar com 0 e ter todos os dígitos diferentes de 0
+                  const isYearComplete = yearPart.length === 4 && 
+                                        yearPart !== '0000' && 
+                                        parseInt(yearPart) >= 1000;
+                  
+                  // Se o cursor está na parte do ano, já tem 4 dígitos válidos, e não há seleção
+                  if (cursorPos <= 4 && isYearComplete && input.selectionStart === input.selectionEnd) {
+                    e.preventDefault();
                   }
                 }
               }}
